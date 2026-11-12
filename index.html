@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+<title>เกมทายใจ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Mitr:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one narrow column. Every screen is a punch card (clipped top-left corner, hard shadow) with its buttons underneath. */
+:root {
+  --bg: #E6ECF2;
+  --paper: #F9FBFD;
+  --ink: #14213D;
+  --muted: #55627A;
+  --rule: #C3CCD9;
+  --edge: #14213D;
+  --shadow: #14213D;
+  --accent: #2D4BE0;
+  --accent-ink: #FFFFFF;
+  --hi: #FFD84D;
+  --hi-ink: #14213D;
+  --font-display: "Mitr", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans Thai", "Noto Sans Thai", system-ui, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1525;
+    --paper: #18223A;
+    --ink: #EAF0F8;
+    --muted: #9DAAC2;
+    --rule: #34415E;
+    --edge: #6E80A8;
+    --shadow: #050810;
+    --accent: #8CA0FF;
+    --accent-ink: #0B1226;
+    --hi: #FFD84D;
+    --hi-ink: #14213D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1525;
+  --paper: #18223A;
+  --ink: #EAF0F8;
+  --muted: #9DAAC2;
+  --rule: #34415E;
+  --edge: #6E80A8;
+  --shadow: #050810;
+  --accent: #8CA0FF;
+  --accent-ink: #0B1226;
+  --hi: #FFD84D;
+  --hi-ink: #14213D;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { height: 100%; }
+body {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  padding-block: 24px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { width: 100%; max-width: 440px; margin: auto; }
+.screen { display: flex; flex-direction: column; gap: 22px; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; text-wrap: balance; }
+
+/* Punch row: six slots, one per card */
+.slots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.slot {
+  height: 14px;
+  border: 2px solid var(--rule);
+  border-style: dashed;
+  background: transparent;
+}
+.slot[data-s="now"] { border-style: solid; border-color: var(--accent); background: var(--hi); }
+.slot[data-s="yes"] { border-style: solid; border-color: var(--edge); background: var(--ink); }
+.slot[data-s="no"] {
+  border-style: solid;
+  border-color: var(--rule);
+  background: linear-gradient(var(--muted), var(--muted)) center / 45% 2px no-repeat;
+}
+
+/* Card */
+.deck { filter: drop-shadow(5px 5px 0 var(--shadow)); }
+.card {
+  position: relative;
+  background: var(--paper);
+  border: 2px solid var(--edge);
+  clip-path: polygon(30px 0, 100% 0, 100% 100%, 0 100%, 0 30px);
+  padding: 18px 14px 16px;
+}
+.card::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  width: 30px;
+  height: 30px;
+  pointer-events: none;
+  background: linear-gradient(135deg, transparent 50%, var(--edge) 50%, var(--edge) calc(50% + 2.5px), transparent calc(50% + 2.5px));
+}
+.card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-left: 14px; font-size: .9rem; color: var(--muted); }
+.card-top .tag { font-family: var(--font-num); font-size: .8rem; }
+
+.nums {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  margin-top: 10px;
+  font-family: var(--font-num);
+  font-weight: 500;
+  font-size: clamp(.9rem, 4.3vw, 1.3rem);
+  font-variant-numeric: tabular-nums;
+}
+.nums span { text-align: center; padding: 9px 0; border-bottom: 1px solid var(--rule); }
+
+.enter { animation: slide-in .22s ease-out; }
+@keyframes slide-in { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: none; } }
+
+/* Intro */
+.intro-card { display: flex; flex-direction: column; gap: 16px; padding: 22px 18px 22px; }
+.intro-card .slots { margin-left: 0; }
+.cap { font-size: .9rem; color: var(--muted); }
+h1.title { font-size: clamp(3.6rem, 19vw, 5.2rem); font-weight: 600; line-height: 1.25; }
+.lead { font-size: 1.08rem; max-width: 34ch; }
+.hint { font-size: .92rem; color: var(--muted); max-width: 36ch; }
+
+/* Play */
+.q { font-size: 1.5rem; line-height: 1.35; }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* Buttons */
+.btn {
+  font: 500 1.08rem/1.25 var(--font-display);
+  min-height: 56px;
+  padding: 12px 16px;
+  border: 2px solid var(--edge);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--shadow);
+  transition: transform .08s, box-shadow .08s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--shadow); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.wide { width: 100%; }
+.linkbtn {
+  align-self: flex-start;
+  background: none;
+  border: 0;
+  padding: 6px 0;
+  font: inherit;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+:is(.btn, .linkbtn):focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+/* Reveal */
+.reading { display: flex; flex-direction: column; gap: 14px; }
+.reading .status { font-family: var(--font-display); font-size: 1.4rem; }
+.result { display: flex; flex-direction: column; gap: 22px; }
+.answer-line { font-family: var(--font-display); font-size: 1.25rem; }
+.big {
+  align-self: flex-start;
+  margin-top: 10px;
+  font: 600 clamp(5.5rem, 30vw, 9rem) / 1.15 var(--font-display);
+  background: var(--hi);
+  color: var(--hi-ink);
+  padding: 0 .22em;
+  border: 2px solid var(--edge);
+  box-shadow: 5px 5px 0 var(--shadow);
+  transform: rotate(-1.5deg);
+  font-variant-numeric: tabular-nums;
+  animation: pop .32s cubic-bezier(.2, 1.4, .4, 1);
+}
+@keyframes pop { from { transform: scale(.55) rotate(-8deg); opacity: 0; } to { transform: rotate(-1.5deg); opacity: 1; } }
+.none-msg { font-size: 1.1rem; }
+
+.explain { display: flex; flex-direction: column; gap: 14px; padding-top: 22px; }
+.explain h2 { font-size: 1.25rem; }
+.sum { font-family: var(--font-num); font-weight: 600; font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+.bits { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; text-align: center; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.bits .v { font-size: .85rem; color: var(--muted); }
+.bits .b { border: 2px solid var(--edge); padding: 6px 0; font-weight: 600; font-size: 1.1rem; }
+.bits .b.on { background: var(--ink); color: var(--bg); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+
+<main class="wrap">
+
+  <section id="intro" class="screen">
+    <div class="deck">
+      <div class="card intro-card">
+        <div class="slots" aria-hidden="true">
+          <span class="slot" data-s="todo"></span><span class="slot" data-s="todo"></span><span class="slot" data-s="todo"></span>
+          <span class="slot" data-s="todo"></span><span class="slot" data-s="todo"></span><span class="slot" data-s="todo"></span>
+        </div>
+        <p class="cap">การ์ด 6 ใบ เลข 1 ถึง 63</p>
+        <h1 class="title">ทายใจ</h1>
+        <p class="lead">คิดเลขหนึ่งตัวตั้งแต่ 1 ถึง 63 ไว้ในใจ แล้วบอกฉันแค่ว่าเลขนั้นอยู่ในการ์ดแต่ละใบไหม พอครบ 6 ใบ ฉันจะบอกได้ว่าคุณคิดเลขอะไร</p>
+        <p class="hint">เล่นกับเพื่อนได้ ให้เพื่อนคิดเลขและกดตอบเอง ไม่ต้องบอกเลขกับใคร</p>
+      </div>
+    </div>
+    <button class="btn primary wide" id="start" type="button">คิดเลขได้แล้ว เริ่มเลย</button>
+  </section>
+
+  <section id="play" class="screen" hidden>
+    <div class="slots" id="playSlots" aria-hidden="true"></div>
+    <h2 class="q" id="question" aria-live="polite">เลขของคุณอยู่ในการ์ดนี้ไหม</h2>
+    <div class="deck" id="deck">
+      <div class="card">
+        <div class="card-top"><span id="count">ใบที่ 1 จาก 6</span></div>
+        <div class="nums" id="nums"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="yes" type="button">มีเลขของฉัน</button>
+      <button class="btn" id="no" type="button">ไม่มี</button>
+    </div>
+    <button class="linkbtn" id="back" type="button" hidden>ย้อนกลับไปใบก่อนหน้า</button>
+  </section>
+
+  <section id="reveal" class="screen" hidden>
+    <div class="reading" id="reading">
+      <div class="slots" id="readSlots" aria-hidden="true"></div>
+      <p class="status" role="status">กำลังอ่านใจ</p>
+    </div>
+
+    <div class="result" id="result" hidden>
+      <div id="hit">
+        <p class="answer-line">เลขในใจของคุณคือ</p>
+        <div class="big" id="big">0</div>
+      </div>
+      <p class="none-msg" id="none" hidden>ไม่มีการ์ดใบไหนมีเลขของคุณเลย เลขที่คิดต้องอยู่ระหว่าง 1 ถึง 63 ลองเล่นอีกครั้งนะ</p>
+      <button class="btn primary wide" id="again" type="button">เล่นอีกครั้ง</button>
+
+      <div class="deck" id="explainDeck">
+        <div class="card explain">
+          <h2>ฉันรู้ได้อย่างไร</h2>
+          <p>การ์ดทั้ง 6 ใบขึ้นต้นด้วยเลข 1, 2, 4, 8, 16 และ 32 ถ้าเลขของคุณอยู่ในการ์ดใบไหน ฉันก็เอาเลขแรกของใบนั้นมาบวกกัน</p>
+          <p class="sum" id="sum"></p>
+          <div class="bits" id="bits"></div>
+          <p class="cap" id="binary"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  var BITS = [1, 2, 4, 8, 16, 32];
+  var $ = function (id) { return document.getElementById(id); };
+  var intro = $('intro'), play = $('play'), reveal = $('reveal');
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var order = [], idx = 0, answers = {}, timer = null;
+
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function cardNums(bit) {
+    var r = [];
+    for (var n = 1; n <= 63; n++) if (n & bit) r.push(n);
+    return r;
+  }
+  function slotState(i) {
+    if (i < idx) return answers[order[i]] ? 'yes' : 'no';
+    return i === idx ? 'now' : 'todo';
+  }
+  function paintSlots(el, fn) {
+    el.innerHTML = '';
+    for (var i = 0; i < 6; i++) {
+      var s = document.createElement('span');
+      s.className = 'slot';
+      s.setAttribute('data-s', fn(i));
+      el.appendChild(s);
+    }
+  }
+  function show(screen) {
+    intro.hidden = screen !== intro;
+    play.hidden = screen !== play;
+    reveal.hidden = screen !== reveal;
+    window.scrollTo(0, 0);
+  }
+
+  function render() {
+    var bit = order[idx];
+    $('count').textContent = 'ใบที่ ' + (idx + 1) + ' จาก 6';
+    $('nums').innerHTML = cardNums(bit).map(function (n) { return '<span>' + n + '</span>'; }).join('');
+    paintSlots($('playSlots'), slotState);
+    $('back').hidden = idx === 0;
+    var deck = $('deck');
+    deck.classList.remove('enter');
+    void deck.offsetWidth;
+    deck.classList.add('enter');
+  }
+
+  function start() {
+    clearTimeout(timer);
+    order = shuffle(BITS);
+    idx = 0;
+    answers = {};
+    show(play);
+    render();
+  }
+
+  function answer(yes) {
+    answers[order[idx]] = yes;
+    idx++;
+    if (idx < 6) render(); else finish();
+  }
+
+  function back() {
+    if (idx === 0) return;
+    idx--;
+    delete answers[order[idx]];
+    render();
+  }
+
+  function renderResult(total) {
+    var hit = total > 0;
+    $('hit').hidden = !hit;
+    $('none').hidden = hit;
+    $('explainDeck').hidden = !hit;
+    $('result').hidden = false;
+    $('reading').hidden = true;
+    if (!hit) return;
+
+    $('big').textContent = total;
+
+    var yesBits = BITS.filter(function (b) { return answers[b]; });
+    $('sum').textContent = yesBits.length > 1 ? yesBits.join(' + ') + ' = ' + total : String(total);
+
+    var desc = BITS.slice().reverse();
+    $('bits').innerHTML =
+      desc.map(function (b) { return '<div class="v">' + b + '</div>'; }).join('') +
+      desc.map(function (b) { return '<div class="b' + (answers[b] ? ' on' : '') + '">' + (answers[b] ? 1 : 0) + '</div>'; }).join('');
+    $('binary').textContent = 'เขียนเป็นเลขฐานสองได้ว่า ' + desc.map(function (b) { return answers[b] ? 1 : 0; }).join('');
+  }
+
+  function finish() {
+    clearTimeout(timer);
+    var total = BITS.reduce(function (s, b) { return s + (answers[b] ? b : 0); }, 0);
+    show(reveal);
+    $('result').hidden = true;
+    $('reading').hidden = false;
+    var row = $('readSlots');
+    paintSlots(row, function () { return 'todo'; });
+    if (reduce) { renderResult(total); return; }
+    var i = 0;
+    function tick() {
+      if (i < 6) {
+        row.children[i].setAttribute('data-s', answers[order[i]] ? 'yes' : 'no');
+        i++;
+        timer = setTimeout(tick, 260);
+      } else {
+        timer = setTimeout(function () { renderResult(total); }, 450);
+      }
+    }
+    timer = setTimeout(tick, 300);
+  }
+
+  $('start').addEventListener('click', start);
+  $('yes').addEventListener('click', function () { answer(true); });
+  $('no').addEventListener('click', function () { answer(false); });
+  $('back').addEventListener('click', back);
+  $('again').addEventListener('click', start);
+})();
+</script>
+</body>
+</html>
